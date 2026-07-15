@@ -1,0 +1,45 @@
+flowchart TB
+    Browser["Browser<br/>React 19 SPA (Vite)"]
+
+    subgraph API["API process - server.js"]
+        Express["Express REST API"]
+        SocketSrv["Socket.io server"]
+    end
+
+    subgraph Worker["Worker process - worker.js"]
+        Consumer["Click consumer"]
+        Cron["Expiry sweep<br/>node-cron, daily 02:00"]
+    end
+
+    Postgres[("PostgreSQL<br/>source of truth")]
+    Redis[("Redis<br/>cache / shortcode shield / pub-sub")]
+    MQ{{"RabbitMQ<br/>url.events exchange"}}
+    DLQ[("click-analytics-dlq")]
+
+    SafeBrowsing["Google Safe Browsing API"]
+    Gemini["Google Gemini API"]
+    GoogleAuth["Google Identity Services"]
+    TargetSite["Target page being shortened"]
+
+    Browser -- "REST fetch()" --> Express
+    Browser <-- "WebSocket, JWT in handshake" --> SocketSrv
+
+    Express -- "cache-aside GET / write-through SET" --> Redis
+    Express -- "SADD / SREM / SISMEMBER" --> Redis
+    Express -- "parameterized SQL" --> Postgres
+    Express -- "publish click.created" --> MQ
+    Express -- "PUBLISH link-events" --> Redis
+    Redis -- "SUBSCRIBE link-events" --> SocketSrv
+
+    Express -. "check URL before create" .-> SafeBrowsing
+    Express -. "fire-and-forget fetch" .-> TargetSite
+    Express -. "summarize fetched text" .-> Gemini
+    Express -. "verify ID token" .-> GoogleAuth
+
+    MQ -- "consume, prefetch 10" --> Consumer
+    Consumer -- "failed msg, no requeue" --> DLQ
+    Consumer -- "INSERT/UPDATE" --> Postgres
+    Consumer -- "PUBLISH link-events" --> Redis
+
+    Cron -- "deactivate expired rows" --> Postgres
+    Cron -- "evict + PUBLISH" --> Redis
