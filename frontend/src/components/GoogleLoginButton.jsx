@@ -21,14 +21,18 @@ export function GoogleLoginButton({ onSuccess, onError }) {
         sx={{
           display: "flex",
           justifyContent: "center",
-          bgcolor: "transparent",
-          borderRadius: 2,
-          overflow: "hidden",
-          p: 0.5,
+          alignItems: "center",
+          mt: 1,
+          "& > div": {
+            padding: 0,
+            margin: 0,
+            backgroundColor: "transparent !important",
+          },
         }}
       >
         <GoogleLogin
-          theme={mode === 'dark' ? 'filled_black' : 'outline'}
+          theme={mode === 'dark' ? 'filled_black' : 'filled_blue'}
+          width="320"
           onSuccess={async (credentialResponse) => {
             try {
               await loginWithGoogle(credentialResponse.credential);
