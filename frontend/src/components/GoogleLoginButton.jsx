@@ -17,7 +17,16 @@ export function GoogleLoginButton({ onSuccess, onError }) {
           OR
         </Typography>
       </Divider>
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          bgcolor: "transparent",
+          borderRadius: 2,
+          overflow: "hidden",
+          p: 0.5,
+        }}
+      >
         <GoogleLogin
           theme={mode === 'dark' ? 'filled_black' : 'outline'}
           onSuccess={async (credentialResponse) => {
