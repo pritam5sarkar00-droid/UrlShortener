@@ -12,6 +12,7 @@ import router from './routes/index.js';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', true);
 app.use(metricsMiddleware); // first, so it wraps the full request lifecycle
 app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
