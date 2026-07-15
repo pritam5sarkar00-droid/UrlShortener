@@ -1,49 +1,48 @@
-import { GoogleLogin } from '@react-oauth/google';
-import { Divider, Typography, Box } from '@mui/material';
-import { useAuth } from '../context/AuthContext.jsx';
-import { useThemeMode } from '../context/ThemeModeContext.jsx';
+import GoogleIcon from "@mui/icons-material/Google";
+import { Button, Divider, Typography, Box } from "@mui/material";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export function GoogleLoginButton({ onSuccess, onError }) {
   const { loginWithGoogle } = useAuth();
-  const { mode } = useThemeMode();
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-  if (!googleClientId) return null;
+  const login = useGoogleLogin({
+    flow: "implicit",
+    onSuccess: async (tokenResponse) => {
+      try {
+        await loginWithGoogle(tokenResponse.access_token);
+        onSuccess?.();
+      } catch (err) {
+        onError?.(err.message);
+      }
+    },
+    onError: () => onError?.("Google login failed"),
+  });
 
   return (
-    <Box sx={{ mt: 1 }}>
-      <Divider sx={{ my: 2 }}>
-        <Typography variant="caption" color="text.secondary">
+    <Box sx={{ mt: 2 }}>
+      <Divider sx={{ mb: 3 }}>
+        <Typography variant="caption">
           OR
         </Typography>
       </Divider>
-      <Box
+
+      <Button
+        fullWidth
+        variant="outlined"
+        size="large"
+        startIcon={<GoogleIcon />}
+        onClick={() => login()}
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          mt: 1,
-          "& > div": {
-            padding: 0,
-            margin: 0,
-            backgroundColor: "transparent !important",
-          },
+          py: 1.4,
+          borderRadius: 3,
+          textTransform: "none",
+          fontSize: 16,
+          fontWeight: 600,
         }}
       >
-        <GoogleLogin
-          theme={mode === 'dark' ? 'filled_black' : 'filled_blue'}
-          width="320"
-          onSuccess={async (credentialResponse) => {
-            try {
-              await loginWithGoogle(credentialResponse.credential);
-              onSuccess?.();
-            } catch (err) {
-              onError?.(err.message);
-            }
-          }}
-          onError={() => onError?.('Google sign-in failed - please try again.')}
-        />
-      </Box>
+        Continue with Google
+      </Button>
     </Box>
   );
 }
