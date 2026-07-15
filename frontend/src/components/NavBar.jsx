@@ -14,7 +14,17 @@ export function NavBar() {
   const isDark = mode === 'dark';
 
   return (
-    <AppBar position="static" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+    <AppBar
+      position="static"
+      elevation={0}
+      color="transparent"
+      sx={{
+        borderBottom: 1,
+        borderColor: 'divider',
+        bgcolor: 'background.paper',
+        color: 'text.primary',
+      }}
+    >
       <Toolbar sx={{ maxWidth: 960, width: '100%', mx: 'auto' }}>
         <Box sx={{ position: 'relative', display: 'inline-flex', mr: 1.25 }}>
           <LinkIcon color="primary" />
@@ -35,9 +45,14 @@ export function NavBar() {
           variant="h6"
           component={RouterLink}
           to="/"
-          sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit', letterSpacing: '-0.02em' }}
+          sx={{
+            flexGrow: 1,
+            textDecoration: 'none',
+            color: 'text.primary',
+            letterSpacing: '-0.02em',
+          }}
         >
-          shorty
+        shorty
         </Typography>
         <Stack direction="row" spacing={0.5} alignItems="center">
           <Tooltip title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
