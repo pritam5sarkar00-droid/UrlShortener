@@ -6,4 +6,3 @@ build/
 .DS_Store
 *.rdb
 DEPLOYMENT.md
-monitoring/
