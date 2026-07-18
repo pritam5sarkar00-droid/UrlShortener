@@ -224,7 +224,9 @@ export function QrCodeDialog({ open, onClose, url, label }) {
           <TextField
             label="Initials (1-2 letters)"
             value={monogramText}
-            onChange={(e) => setMonogramText(e.target.value.slice(0, 2))}
+            onChange={(e) =>
+                setMonogramText(e.target.value.trimStart().slice(0, 2))
+            }
             fullWidth
             size="small"
             placeholder="AB"

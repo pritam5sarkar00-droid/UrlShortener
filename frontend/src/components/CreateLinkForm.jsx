@@ -67,11 +67,15 @@ export function CreateLinkForm({ onCreated, links }) {
     }
   }
 
-  function handleCopy() {
-    navigator.clipboard.writeText(result.shortUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  }
+  async function handleCopy() {
+    try {
+        await navigator.clipboard.writeText(result.shortUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+    } catch {
+        setError("Couldn't copy the link.");
+    }
+}
 
   return (
     <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: 3 }}>
@@ -93,18 +97,39 @@ export function CreateLinkForm({ onCreated, links }) {
                 label="Custom alias (optional)"
                 placeholder="my-brand"
                 value={customAlias}
-                onChange={(e) => setCustomAlias(e.target.value)}
+                onChange={(e) =>
+                    setCustomAlias(e.target.value.replace(/\s+/g, ""))
+                }
                 fullWidth
                 helperText="3-20 letters, numbers, _ or -"
                 slotProps={{ input: { sx: { fontFamily: fontMono, fontSize: 14 } } }}
               />
               <TextField
                 label="Expires in (days)"
-                placeholder="365"
-                value={expiresInDays}
-                onChange={(e) => setExpiresInDays(e.target.value)}
                 type="number"
-                fullWidth
+                value={expiresInDays}
+                inputProps={{
+                  min: 1,
+                  max: 3650,
+                  step: 1,
+                }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === 'ArrowDown' &&
+                    Number(expiresInDays || 1) <= 1
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    setExpiresInDays('');
+                    return;
+                  }
+                  const num = Math.min(3650, Math.max(1, Number(value)));
+                  setExpiresInDays(num);
+                }}
               />
             </Stack>
           ) : (
